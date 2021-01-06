@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shopping/dbHelper.dart';
 import 'package:shopping/models/Item.dart';
@@ -12,10 +14,47 @@ class _HomeScreenState extends State<HomeScreen> {
   DbHelper helper;
   Widget wSum;
 
+  _load1() async {
+    // Time (splash)
+    Timer(Duration(seconds: 0), () {
+      setState(() {
+        wSum = wSum = helper.con(context);
+      });
+    });
+  }
+
+  _load2() async {
+    Timer(Duration(seconds: 1), () {
+      setState(() {
+        wSum = wSum = helper.con(context);
+      });
+    });
+  }
+
+  _load4() async {
+    Timer(Duration(seconds: 2), () {
+      setState(() {
+        wSum = wSum = helper.con(context);
+      });
+    });
+  }
+
+  _load3() async {
+    Timer(Duration(milliseconds: 250), () {
+      setState(() {
+        wSum = wSum = helper.con(context);
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     helper = DbHelper();
+    _load1();
+    _load2();
+    _load3();
+    _load4();
   }
 
   @override
