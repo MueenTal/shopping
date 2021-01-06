@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shopping/dbHelper.dart';
+import 'package:shopping/models/Item.dart';
+import 'package:shopping/screens/adding.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -6,10 +9,22 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  double sumtion = 22.33;
+  DbHelper helper;
+  Widget wSum;
+
+  @override
+  void initState() {
+    super.initState();
+    helper = DbHelper();
+  }
 
   @override
   Widget build(BuildContext context) {
+    setState(() {
+      helper.getTotal();
+      wSum = helper.con(context);
+    });
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: SafeArea(
@@ -18,7 +33,14 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: Colors.red[600],
             title: Text("قائمة المشتريات"),
             centerTitle: true,
-            actions: [IconButton(icon: Icon(Icons.add), onPressed: () {})],
+            actions: [
+              IconButton(
+                  icon: Icon(Icons.add),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) => Adding()));
+                  })
+            ],
           ),
           backgroundColor: Colors.grey[200],
           body: Column(
@@ -53,33 +75,53 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 4,
                         color: Colors.grey[300],
                       ),
-                      Container(
-                        height: 60,
-                        width: MediaQuery.of(context).size.width / 2.2,
-                        color: Colors.white,
-                        child: Center(
-                            child: Text(
-                          sumtion.toString(),
-                          style: TextStyle(fontSize: 25),
-                        )),
-                      ),
+                      wSum
+                      // Container(
+                      //   height: 60,
+                      //   width: MediaQuery.of(context).size.width / 2.2,
+                      //   color: Colors.grey[100],
+                      //   child: Center(
+                      //       child: Text(
+                      //     sum,
+                      //     style: TextStyle(fontSize: 25),
+                      //   )),
+                      // ),
                     ],
                   ),
                 ),
               ),
               Divider(),
               Expanded(
-                child: ListView(
-                  children: [
-                    item(3.3, () {}, "mmm"),
-                    item(3.3, () {}, "mmm"),
-                    item(3.3, () {}, "mmm"),
-                    item(3.3, () {}, "mmm"),
-                    item(3.3, () {}, "mmm"),
-                    item(3.3, () {}, "mmm"),
-                    item(3.3, () {}, "mmm"),
-                    item(3.3, () {}, "mmm"),
-                  ],
+                child: FutureBuilder(
+                  future: helper.allItems(),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else {
+                      return ListView.builder(
+                          itemCount: snapshot.data.length,
+                          itemBuilder: (context, i) {
+                            Item items = Item.fromMap(snapshot.data[i]);
+
+                            return item(items.price, () {
+                              helper.deleteItems(items.id);
+                              Navigator.of(context).pop();
+
+                              Navigator.pushReplacement(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder:
+                                      (context, animation1, animation2) =>
+                                          HomeScreen(),
+                                  transitionDuration: Duration(seconds: 0),
+                                ),
+                              );
+                            }, items.name);
+                          });
+                    }
+                  },
                 ),
               )
             ],
@@ -153,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30)),
                                 child: Container(
-                                  height: 350,
+                                  height: 200,
                                   decoration: BoxDecoration(
                                       color: Colors.white,
                                       boxShadow: [
@@ -166,8 +208,92 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [],
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "هل تريد  حذف العنصر هذا ؟",
+                                        style: TextStyle(
+                                            color: Colors.red, fontSize: 20),
+                                      ),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 8.0, right: 8, bottom: 8),
+                                            child: Container(
+                                              height: 50,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  3.5,
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                    Radius.circular(15.0),
+                                                  ),
+                                                  gradient: LinearGradient(
+                                                      begin:
+                                                          Alignment.topCenter,
+                                                      end: Alignment
+                                                          .bottomCenter,
+                                                      colors: [
+                                                        Colors.grey[200],
+                                                        Colors.grey[200],
+                                                      ])),
+                                              child: FlatButton(
+                                                child: Text(
+                                                  " لا ",
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 22),
+                                                ),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 8.0, right: 8, bottom: 8),
+                                            child: Container(
+                                              height: 50,
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  3.5,
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                    Radius.circular(15.0),
+                                                  ),
+                                                  gradient: LinearGradient(
+                                                      begin:
+                                                          Alignment.topCenter,
+                                                      end: Alignment
+                                                          .bottomCenter,
+                                                      colors: [
+                                                        Colors.grey[200],
+                                                        Colors.grey[200],
+                                                      ])),
+                                              child: FlatButton(
+                                                child: Text(
+                                                  " نعم ",
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 22),
+                                                ),
+                                                onPressed: function,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ],
                                   ),
                                 ),
                               );
