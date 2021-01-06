@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shopping/dbHelper.dart';
 import 'package:shopping/models/Item.dart';
+import 'package:shopping/screens/homeScreen.dart';
 
 class Adding extends StatefulWidget {
   @override
@@ -148,6 +149,16 @@ class _AddingState extends State<Adding> {
                                             textColor: Colors.teal[800],
                                             fontSize: 16.0);
                                         Navigator.of(context).pop();
+                                        Navigator.pushReplacement(
+                                          context,
+                                          PageRouteBuilder(
+                                            pageBuilder: (context, animation1,
+                                                    animation2) =>
+                                                HomeScreen(),
+                                            transitionDuration:
+                                                Duration(seconds: 0),
+                                          ),
+                                        );
                                       }
                                     },
                                   ),
